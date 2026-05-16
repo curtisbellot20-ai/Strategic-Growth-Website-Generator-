@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Search, FileText, Palette,
   TrendingUp, BarChart3, CheckSquare, Download,
-  RotateCcw, Brain, Wind, Sparkles, Heart, Target,
+  RotateCcw, Brain, Wind, Sparkles, Heart, Target, Gem,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
 import ScoreCard           from './ScoreCard';
@@ -20,6 +20,7 @@ import CreativeTab         from '@/components/creative/CreativeTab';
 import SEOIntelligenceTab  from '@/components/seo/SEOIntelligenceTab';
 import PersuasionTab       from '@/components/persuasion/PersuasionTab';
 import AcquisitionTab      from '@/components/acquisition/AcquisitionTab';
+import RetentionTab        from '@/components/retention/RetentionTab';
 
 const TABS = [
   { id: 'overview',     label: 'Overview',        icon: LayoutDashboard, badge: null  },
@@ -28,6 +29,7 @@ const TABS = [
   { id: 'creative',     label: 'Creative',         icon: Sparkles,        badge: 'AI' },
   { id: 'persuasion',   label: 'Persuasion',       icon: Heart,           badge: 'AI' },
   { id: 'acquisition',  label: 'Acquisition',      icon: Target,          badge: 'AI' },
+  { id: 'retention',    label: 'Retention',        icon: Gem,             badge: 'AI' },
   { id: 'seo',          label: 'SEO / GEO / AEO',  icon: Search,          badge: 'AI' },
   { id: 'pages',        label: 'Page Blueprints',  icon: FileText,        badge: null  },
   { id: 'strategy',     label: 'Strategy',         icon: TrendingUp,      badge: null  },
@@ -44,6 +46,7 @@ const TAB_COLORS: Partial<Record<TabId, string>> = {
   creative:     'bg-orange-600',
   persuasion:   'bg-rose-600',
   acquisition:  'bg-amber-600',
+  retention:    'bg-indigo-600',
   seo:          'bg-green-600',
 };
 
@@ -120,6 +123,7 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
         {activeTab === 'creative'     && <CreativeTab        intake={blueprint.businessIntake} />}
         {activeTab === 'persuasion'   && <PersuasionTab      intake={blueprint.businessIntake} />}
         {activeTab === 'acquisition'  && <AcquisitionTab     intake={blueprint.businessIntake} />}
+        {activeTab === 'retention'    && <RetentionTab       intake={blueprint.businessIntake} />}
         {activeTab === 'seo'          && <SEOIntelligenceTab intake={blueprint.businessIntake} />}
         {activeTab === 'pages'        && <PagesPanel         pages={blueprint.pageBlueprints}  />}
         {activeTab === 'strategy' && (
