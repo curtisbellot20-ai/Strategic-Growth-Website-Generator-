@@ -3,26 +3,28 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Search, FileText, Palette, TrendingUp,
-  BarChart3, CheckSquare, Download, RotateCcw
+  BarChart3, CheckSquare, Download, RotateCcw, Brain,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
-import ScoreCard from './ScoreCard';
-import SEOPanel from './SEOPanel';
-import PagesPanel from './PagesPanel';
-import StrategyPanel from './StrategyPanel';
-import GrowthPanel from './GrowthPanel';
-import ColorPanel from './ColorPanel';
+import ScoreCard       from './ScoreCard';
+import SEOPanel        from './SEOPanel';
+import PagesPanel      from './PagesPanel';
+import StrategyPanel   from './StrategyPanel';
+import GrowthPanel     from './GrowthPanel';
+import ColorPanel      from './ColorPanel';
 import AtmospherePanel from './AtmospherePanel';
 import ImprovementPanel from './ImprovementPanel';
+import IntelligenceTab from '@/components/intelligence/IntelligenceTab';
 
 const TABS = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'seo', label: 'SEO / GEO / AEO', icon: Search },
-  { id: 'pages', label: 'Page Blueprints', icon: FileText },
-  { id: 'strategy', label: 'Strategy', icon: TrendingUp },
-  { id: 'growth', label: 'Growth Engines', icon: BarChart3 },
-  { id: 'design', label: 'Design', icon: Palette },
-  { id: 'actions', label: 'Action Plan', icon: CheckSquare },
+  { id: 'overview',      label: 'Overview',           icon: LayoutDashboard },
+  { id: 'intelligence',  label: 'Intelligence',        icon: Brain },
+  { id: 'seo',           label: 'SEO / GEO / AEO',    icon: Search },
+  { id: 'pages',         label: 'Page Blueprints',     icon: FileText },
+  { id: 'strategy',      label: 'Strategy',            icon: TrendingUp },
+  { id: 'growth',        label: 'Growth Engines',      icon: BarChart3 },
+  { id: 'design',        label: 'Design',              icon: Palette },
+  { id: 'actions',       label: 'Action Plan',         icon: CheckSquare },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -37,9 +39,9 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
 
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(blueprint, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
     a.download = `${blueprint.businessIntake.businessName.replace(/\s+/g, '-').toLowerCase()}-blueprint.json`;
     a.click();
     URL.revokeObjectURL(url);
@@ -52,7 +54,8 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
         <div>
           <h2 className="text-2xl font-bold text-white">{blueprint.businessIntake.businessName}</h2>
           <p className="text-gray-400 text-sm">
-            {blueprint.businessIntake.city}, {blueprint.businessIntake.state} · {blueprint.businessIntake.industry}
+            {blueprint.businessIntake.city}, {blueprint.businessIntake.state}
+            &nbsp;&middot;&nbsp;{blueprint.businessIntake.industry}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -73,14 +76,19 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${
                 activeTab === tab.id
-                  ? 'bg-sky-500 text-white shadow'
+                  ? tab.id === 'intelligence'
+                    ? 'bg-purple-600 text-white shadow'
+                    : 'bg-sky-500 text-white shadow'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
               {tab.label}
+              {tab.id === 'intelligence' && (
+                <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded text-[10px] font-bold">NEW</span>
+              )}
             </button>
           );
         })}
@@ -97,15 +105,23 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
           <div className="space-y-6">
             <ScoreCard report={blueprint.scoringReport} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ColorPanel colors={blueprint.colorSystem} />
+              <ColorPanel      colors={blueprint.colorSystem} />
               <AtmospherePanel atmosphere={blueprint.atmosphereDesign} />
             </div>
           </div>
         )}
 
-        {activeTab === 'seo' && <SEOPanel seo={blueprint.seoStrategy} />}
+        {activeTab === 'intelligence' && (
+          <IntelligenceTab intake={blueprint.businessIntake} />
+        )}
 
-        {activeTab === 'pages' && <PagesPanel pages={blueprint.pageBlueprints} />}
+        {activeTab === 'seo' && (
+          <SEOPanel seo={blueprint.seoStrategy} />
+        )}
+
+        {activeTab === 'pages' && (
+          <PagesPanel pages={blueprint.pageBlueprints} />
+        )}
 
         {activeTab === 'strategy' && (
           <StrategyPanel
@@ -127,7 +143,7 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
         {activeTab === 'design' && (
           <div className="space-y-6">
             <AtmospherePanel atmosphere={blueprint.atmosphereDesign} />
-            <ColorPanel colors={blueprint.colorSystem} />
+            <ColorPanel      colors={blueprint.colorSystem} />
           </div>
         )}
 
