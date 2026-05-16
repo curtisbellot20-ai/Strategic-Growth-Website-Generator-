@@ -7,29 +7,29 @@ import {
   RotateCcw, Brain, Wind, Sparkles,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
-import ScoreCard        from './ScoreCard';
-import SEOPanel         from './SEOPanel';
-import PagesPanel       from './PagesPanel';
-import StrategyPanel    from './StrategyPanel';
-import GrowthPanel      from './GrowthPanel';
-import ColorPanel       from './ColorPanel';
-import AtmospherePanel  from './AtmospherePanel';
-import ImprovementPanel from './ImprovementPanel';
-import IntelligenceTab  from '@/components/intelligence/IntelligenceTab';
-import AtmosphereTab    from '@/components/atmosphere/AtmosphereTab';
-import CreativeTab      from '@/components/creative/CreativeTab';
+import ScoreCard           from './ScoreCard';
+import PagesPanel          from './PagesPanel';
+import StrategyPanel       from './StrategyPanel';
+import GrowthPanel         from './GrowthPanel';
+import ColorPanel          from './ColorPanel';
+import AtmospherePanel     from './AtmospherePanel';
+import ImprovementPanel    from './ImprovementPanel';
+import IntelligenceTab     from '@/components/intelligence/IntelligenceTab';
+import AtmosphereTab       from '@/components/atmosphere/AtmosphereTab';
+import CreativeTab         from '@/components/creative/CreativeTab';
+import SEOIntelligenceTab  from '@/components/seo/SEOIntelligenceTab';
 
 const TABS = [
-  { id: 'overview',     label: 'Overview',        icon: LayoutDashboard, badge: null },
+  { id: 'overview',     label: 'Overview',        icon: LayoutDashboard, badge: null  },
   { id: 'intelligence', label: 'Intelligence',     icon: Brain,           badge: 'AI' },
   { id: 'atmosphere',   label: 'Atmosphere',       icon: Wind,            badge: 'AI' },
   { id: 'creative',     label: 'Creative',         icon: Sparkles,        badge: 'AI' },
-  { id: 'seo',          label: 'SEO / GEO / AEO',  icon: Search,          badge: null },
-  { id: 'pages',        label: 'Page Blueprints',  icon: FileText,        badge: null },
-  { id: 'strategy',     label: 'Strategy',         icon: TrendingUp,      badge: null },
-  { id: 'growth',       label: 'Growth Engines',   icon: BarChart3,       badge: null },
-  { id: 'design',       label: 'Design',           icon: Palette,         badge: null },
-  { id: 'actions',      label: 'Action Plan',      icon: CheckSquare,     badge: null },
+  { id: 'seo',          label: 'SEO / GEO / AEO',  icon: Search,          badge: 'AI' },
+  { id: 'pages',        label: 'Page Blueprints',  icon: FileText,        badge: null  },
+  { id: 'strategy',     label: 'Strategy',         icon: TrendingUp,      badge: null  },
+  { id: 'growth',       label: 'Growth Engines',   icon: BarChart3,       badge: null  },
+  { id: 'design',       label: 'Design',           icon: Palette,         badge: null  },
+  { id: 'actions',      label: 'Action Plan',      icon: CheckSquare,     badge: null  },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -38,6 +38,7 @@ const TAB_COLORS: Partial<Record<TabId, string>> = {
   intelligence: 'bg-purple-600',
   atmosphere:   'bg-teal-600',
   creative:     'bg-orange-600',
+  seo:          'bg-green-600',
 };
 
 interface Props {
@@ -121,23 +122,11 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
             </div>
           </div>
         )}
-
-        {activeTab === 'intelligence' && (
-          <IntelligenceTab intake={blueprint.businessIntake} />
-        )}
-
-        {activeTab === 'atmosphere' && (
-          <AtmosphereTab intake={blueprint.businessIntake} />
-        )}
-
-        {activeTab === 'creative' && (
-          <CreativeTab intake={blueprint.businessIntake} />
-        )}
-
-        {activeTab === 'seo' && <SEOPanel seo={blueprint.seoStrategy} />}
-
-        {activeTab === 'pages' && <PagesPanel pages={blueprint.pageBlueprints} />}
-
+        {activeTab === 'intelligence' && <IntelligenceTab    intake={blueprint.businessIntake} />}
+        {activeTab === 'atmosphere'   && <AtmosphereTab      intake={blueprint.businessIntake} />}
+        {activeTab === 'creative'     && <CreativeTab        intake={blueprint.businessIntake} />}
+        {activeTab === 'seo'          && <SEOIntelligenceTab intake={blueprint.businessIntake} />}
+        {activeTab === 'pages'        && <PagesPanel         pages={blueprint.pageBlueprints}  />}
         {activeTab === 'strategy' && (
           <StrategyPanel
             strategy={blueprint.strategicIntelligence}
@@ -145,7 +134,6 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
             storytelling={blueprint.storytellingFramework}
           />
         )}
-
         {activeTab === 'growth' && (
           <GrowthPanel
             conversion={blueprint.conversionEngine}
@@ -154,14 +142,12 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
             referral={blueprint.referralEngine}
           />
         )}
-
         {activeTab === 'design' && (
           <div className="space-y-6">
             <AtmospherePanel atmosphere={blueprint.atmosphereDesign} />
             <ColorPanel      colors={blueprint.colorSystem} />
           </div>
         )}
-
         {activeTab === 'actions' && (
           <ImprovementPanel
             items={blueprint.improvementChecklist}
