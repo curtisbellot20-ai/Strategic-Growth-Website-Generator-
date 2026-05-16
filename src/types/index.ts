@@ -1,4 +1,26 @@
-// ─── Business Intake ─────────────────────────────────────────────────────────
+// --- Supporting Interfaces ---
+export interface SocialLinks {
+  instagram: string;
+  facebook: string;
+  linkedin: string;
+  tiktok: string;
+  youtube: string;
+  twitter: string;
+}
+
+export interface Testimonial {
+  name: string;
+  role: string;
+  text: string;
+}
+
+export interface Review {
+  source: string;
+  rating: number;
+  text: string;
+}
+
+// --- Business Intake ---
 export interface BusinessIntake {
   // Basic Info
   businessName: string;
@@ -9,78 +31,77 @@ export interface BusinessIntake {
   yearsInBusiness: string;
   teamSize: string;
 
-  // Location
+  // Location & Contact
   city: string;
   state: string;
   country: string;
   serviceRadius: string;
   isMultiLocation: boolean;
+  websiteUrl: string;
+  phone: string;
+  email: string;
 
-  // Audience
+  // Customer Profile
   targetAudience: string;
   audienceAge: string;
   audienceIncome: string;
   audiencePainPoints: string;
   audienceDesires: string;
+  audienceFears: string;
+  audienceObjections: string;
 
   // Offer
   primaryService: string;
   secondaryServices: string;
+  services: string[];
+  locationsServed: string[];
   uniqueValueProp: string;
   pricePoint: PricePoint;
   resultsOrOutcomes: string;
 
-  // Brand
+  // Brand & Atmosphere
+  desiredAtmosphere: string;
+  desiredBrandStyle: string;
+  desiredEmotionalTone: string;
+  luxuryLevel: number;
+  brandColors: string[];
   brandPersonality: BrandPersonality[];
+  brandVoice: string;
   currentColors: string;
-  competitors: string;
-  brandVoice: BrandVoice;
+  logoDescription: string;
+  imagesDescription: string;
 
-  // Goals
+  // Social & Reviews
+  socialLinks: SocialLinks;
+  googleBusinessProfile: string;
+  testimonials: Testimonial[];
+  reviews: Review[];
+
+  // Goals & Competition
+  competitors: string[];
+  ctaPreference: string;
   primaryGoal: PrimaryGoal;
   monthlyLeadGoal: string;
   revenueGoal: string;
-
-  // Contact
-  websiteUrl: string;
-  phone: string;
-  email: string;
-  socialMedia: string;
+  additionalNotes: string;
 }
 
-// ─── Enums / Literals ─────────────────────────────────────────────────────────
+// --- Enums / Literals ---
 export type Industry =
-  | 'healthcare'
-  | 'legal'
-  | 'real_estate'
-  | 'home_services'
-  | 'restaurant'
-  | 'retail'
-  | 'fitness'
-  | 'beauty'
-  | 'financial'
-  | 'education'
-  | 'technology'
-  | 'consulting'
-  | 'ecommerce'
-  | 'nonprofit'
-  | 'other';
+  | 'healthcare' | 'legal' | 'real_estate' | 'home_services'
+  | 'restaurant' | 'retail' | 'fitness' | 'beauty'
+  | 'financial' | 'education' | 'technology' | 'consulting'
+  | 'ecommerce' | 'nonprofit' | 'other';
 
 export type BusinessType = 'local' | 'regional' | 'national' | 'ecommerce' | 'saas';
 export type PricePoint = 'budget' | 'mid_market' | 'premium' | 'luxury';
 export type BrandVoice = 'professional' | 'friendly' | 'authoritative' | 'playful' | 'inspiring' | 'empathetic';
 export type PrimaryGoal = 'leads' | 'sales' | 'bookings' | 'awareness' | 'retention' | 'referrals';
 export type BrandPersonality =
-  | 'trustworthy'
-  | 'innovative'
-  | 'luxurious'
-  | 'approachable'
-  | 'energetic'
-  | 'calming'
-  | 'bold'
-  | 'sophisticated';
+  | 'trustworthy' | 'innovative' | 'luxurious' | 'approachable'
+  | 'energetic' | 'calming' | 'bold' | 'sophisticated';
 
-// ─── Generated Blueprint ──────────────────────────────────────────────────────
+// --- Generated Blueprint ---
 export interface WebsiteBlueprint {
   businessIntake: BusinessIntake;
   strategicIntelligence: StrategicIntelligence;
@@ -297,15 +318,8 @@ export interface PageBlueprint {
 }
 
 export type PageType =
-  | 'homepage'
-  | 'service'
-  | 'location'
-  | 'about'
-  | 'contact'
-  | 'blog'
-  | 'faq'
-  | 'case_study'
-  | 'landing';
+  | 'homepage' | 'service' | 'location' | 'about'
+  | 'contact' | 'blog' | 'faq' | 'case_study' | 'landing';
 
 export interface PageSection {
   sectionType: string;
@@ -383,16 +397,10 @@ export interface ImprovementItem {
   timeline: string;
 }
 
-// ─── Generation State ─────────────────────────────────────────────────────────
+// --- Generation State ---
 export type GenerationStep =
-  | 'idle'
-  | 'analyzing'
-  | 'strategizing'
-  | 'designing'
-  | 'writing'
-  | 'scoring'
-  | 'complete'
-  | 'error';
+  | 'idle' | 'analyzing' | 'strategizing' | 'designing'
+  | 'writing' | 'scoring' | 'complete' | 'error';
 
 export interface GenerationState {
   step: GenerationStep;
