@@ -1,10 +1,25 @@
 import type { BusinessIntake } from '@/types';
 
 export function buildMasterPrompt(intake: BusinessIntake): string {
+  const socialSummary = Object.entries(intake.socialLinks || {})
+    .filter(([, v]) => v)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(', ');
+
+  const testimonialSummary = (intake.testimonials || [])
+    .slice(0, 3)
+    .map((t, i) => `[${i+1}] "${t.text}" — ${t.name}${t.role ? `, ${t.role}` : ''}`)
+    .join('\n');
+
+  const reviewSummary = (intake.reviews || [])
+    .slice(0, 3)
+    .map((r) => `${r.source} (${r.rating}★): ${r.text || 'Positive review'}`)
+    .join('\n');
+
   return `You are a team of elite business growth experts:
 - Luxury Brand Strategist
-- CRO Expert
-- SEO/GEO/AEO Expert
+- CRO (Conversion Rate Optimization) Expert
+- SEO / GEO / AEO Expert
 - UI/UX Designer
 - Behavioral Psychology Strategist
 - Ethical Persuasion Copywriter
@@ -13,48 +28,78 @@ export function buildMasterPrompt(intake: BusinessIntake): string {
 - Customer Retention Strategist
 - Business Intelligence Analyst
 
-Analyze this business and produce a COMPREHENSIVE strategic website blueprint as a valid JSON object.
+Analyze this business profile and produce a COMPREHENSIVE strategic website blueprint as a valid JSON object.
 
 ## BUSINESS PROFILE
 Business Name: ${intake.businessName}
-Tagline: ${intake.tagline}
+Tagline: ${intake.tagline || 'N/A'}
 Industry: ${intake.industry}
-Sub-Industry: ${intake.subIndustry}
+Sub-Industry / Specialty: ${intake.subIndustry || 'N/A'}
 Business Type: ${intake.businessType}
-Years in Business: ${intake.yearsInBusiness}
-Team Size: ${intake.teamSize}
+Years in Business: ${intake.yearsInBusiness || 'N/A'}
+Team Size: ${intake.teamSize || 'N/A'}
 
-## LOCATION
-City: ${intake.city}, ${intake.state}, ${intake.country}
-Service Radius: ${intake.serviceRadius}
-Multi-Location: ${intake.isMultiLocation}
+## LOCATION & CONTACT
+Primary Location: ${intake.city}, ${intake.state}, ${intake.country || 'USA'}
+Service Radius / Area: ${intake.serviceRadius || 'N/A'}
+Multiple Locations: ${intake.isMultiLocation ? 'Yes' : 'No'}
+Locations Served: ${(intake.locationsServed || []).join(', ') || 'N/A'}
+Current Website: ${intake.websiteUrl || 'None'}
+Phone: ${intake.phone || 'N/A'}
+Email: ${intake.email || 'N/A'}
 
-## TARGET AUDIENCE
-Audience: ${intake.targetAudience}
-Age Range: ${intake.audienceAge}
-Income Level: ${intake.audienceIncome}
+## TARGET AUDIENCE & PSYCHOLOGY
+Ideal Customer: ${intake.targetAudience}
+Age Range: ${intake.audienceAge || 'N/A'}
+Income Level: ${intake.audienceIncome || 'N/A'}
+
 Pain Points: ${intake.audiencePainPoints}
-Desires: ${intake.audienceDesires}
+Desires & Aspirations: ${intake.audienceDesires || 'N/A'}
+Deep Fears: ${intake.audienceFears || 'N/A'}
+Buying Objections: ${intake.audienceObjections || 'N/A'}
 
-## OFFER
-Primary Service: ${intake.primaryService}
-Secondary Services: ${intake.secondaryServices}
+## OFFER & VALUE
+Primary Service / Product: ${intake.primaryService}
+Secondary Services: ${intake.secondaryServices || 'N/A'}
+All Services Offered: ${(intake.services || []).join(', ') || 'N/A'}
 Unique Value Proposition: ${intake.uniqueValueProp}
 Price Point: ${intake.pricePoint}
-Results/Outcomes: ${intake.resultsOrOutcomes}
+Results & Outcomes Delivered: ${intake.resultsOrOutcomes || 'N/A'}
 
-## BRAND
-Personality: ${intake.brandPersonality.join(', ')}
-Current Colors: ${intake.currentColors}
-Competitors: ${intake.competitors}
-Brand Voice: ${intake.brandVoice}
+## BRAND & ATMOSPHERE
+Desired Atmosphere: ${intake.desiredAtmosphere || 'N/A'}
+Desired Brand Style: ${intake.desiredBrandStyle || 'N/A'}
+Desired Emotional Tone: ${intake.desiredEmotionalTone || 'N/A'}
+Luxury Level (1-5): ${intake.luxuryLevel || 3}
+Brand Personality: ${(intake.brandPersonality || []).join(', ') || 'N/A'}
+Brand Voice: ${intake.brandVoice || 'N/A'}
+Preferred Brand Colors (hex): ${(intake.brandColors || []).join(', ') || 'N/A'}
+Existing Colors / Notes: ${intake.currentColors || 'N/A'}
+Logo Description: ${intake.logoDescription || 'N/A'}
+Imagery Notes: ${intake.imagesDescription || 'N/A'}
 
-## GOALS
-Primary Goal: ${intake.primaryGoal}
-Monthly Lead Goal: ${intake.monthlyLeadGoal}
-Revenue Goal: ${intake.revenueGoal}
+## SOCIAL PRESENCE
+Social Media: ${socialSummary || 'N/A'}
+Google Business Profile: ${intake.googleBusinessProfile || 'N/A'}
 
-Return ONLY a JSON object with this exact structure. No markdown, no explanation:
+## SOCIAL PROOF
+Testimonials:
+${testimonialSummary || 'None provided'}
+
+Reviews:
+${reviewSummary || 'None provided'}
+
+## GOALS & COMPETITION
+Primary Website Goal: ${intake.primaryGoal}
+Preferred CTA Style: ${intake.ctaPreference || 'N/A'}
+Monthly Lead / Customer Goal: ${intake.monthlyLeadGoal || 'N/A'}
+Revenue Goal: ${intake.revenueGoal || 'N/A'}
+Main Competitors: ${(intake.competitors || []).join(', ') || 'N/A'}
+Additional Notes: ${intake.additionalNotes || 'N/A'}
+
+---
+
+Return ONLY a JSON object with this exact structure. No markdown, no code fences, no explanation:
 
 {
   "strategicIntelligence": {
@@ -202,5 +247,11 @@ Return ONLY a JSON object with this exact structure. No markdown, no explanation
   ]
 }
 
-Be extremely specific to ${intake.businessName} in ${intake.city}. Generate real, actionable, premium-quality strategic content. Include at least 5 page blueprints (homepage, 2 service pages, location page, about page). Each page blueprint must have at least 6 sections.`;
+Be extremely specific to ${intake.businessName} in ${intake.city}, ${intake.state}.
+Generate real, actionable, premium-quality strategic content.
+Incorporate the brand colors (${(intake.brandColors||[]).join(', ')}) into colorSystem recommendations.
+Align the CTA strategy with the preferred CTA style: ${intake.ctaPreference || 'best fit for industry'}.
+Address each specific objection provided: ${intake.audienceObjections || 'use industry-common objections'}.
+Include at least 6 page blueprints: homepage, 2-3 service pages, location page, about page, contact page.
+Each page blueprint must have at least 6 detailed sections with real copy angles.`;
 }
