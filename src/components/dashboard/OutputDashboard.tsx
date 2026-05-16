@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Search, FileText, Palette,
   TrendingUp, BarChart3, CheckSquare, Download,
-  RotateCcw, Brain, Wind, Sparkles,
+  RotateCcw, Brain, Wind, Sparkles, Heart,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
 import ScoreCard           from './ScoreCard';
@@ -18,12 +18,14 @@ import IntelligenceTab     from '@/components/intelligence/IntelligenceTab';
 import AtmosphereTab       from '@/components/atmosphere/AtmosphereTab';
 import CreativeTab         from '@/components/creative/CreativeTab';
 import SEOIntelligenceTab  from '@/components/seo/SEOIntelligenceTab';
+import PersuasionTab       from '@/components/persuasion/PersuasionTab';
 
 const TABS = [
   { id: 'overview',     label: 'Overview',        icon: LayoutDashboard, badge: null  },
   { id: 'intelligence', label: 'Intelligence',     icon: Brain,           badge: 'AI' },
   { id: 'atmosphere',   label: 'Atmosphere',       icon: Wind,            badge: 'AI' },
   { id: 'creative',     label: 'Creative',         icon: Sparkles,        badge: 'AI' },
+  { id: 'persuasion',   label: 'Persuasion',       icon: Heart,           badge: 'AI' },
   { id: 'seo',          label: 'SEO / GEO / AEO',  icon: Search,          badge: 'AI' },
   { id: 'pages',        label: 'Page Blueprints',  icon: FileText,        badge: null  },
   { id: 'strategy',     label: 'Strategy',         icon: TrendingUp,      badge: null  },
@@ -38,6 +40,7 @@ const TAB_COLORS: Partial<Record<TabId, string>> = {
   intelligence: 'bg-purple-600',
   atmosphere:   'bg-teal-600',
   creative:     'bg-orange-600',
+  persuasion:   'bg-rose-600',
   seo:          'bg-green-600',
 };
 
@@ -61,7 +64,6 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-bold text-white">{blueprint.businessIntake.businessName}</h2>
@@ -80,39 +82,27 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
         </div>
       </div>
 
-      {/* Tab Nav */}
       <div className="flex gap-1 mb-6 bg-white/5 rounded-xl p-1 overflow-x-auto">
         {TABS.map((tab) => {
           const Icon     = tab.icon;
           const isActive = activeTab === tab.id;
           const activeBg = TAB_COLORS[tab.id] || 'bg-sky-500';
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-all flex-shrink-0 ${
                 isActive ? `${activeBg} text-white shadow` : 'text-gray-400 hover:text-white'
-              }`}
-            >
+              }`}>
               <Icon className="w-3.5 h-3.5" />
               {tab.label}
               {tab.badge && (
-                <span className="ml-0.5 px-1.5 py-0.5 bg-white/20 rounded text-[10px] font-bold">
-                  {tab.badge}
-                </span>
+                <span className="ml-0.5 px-1.5 py-0.5 bg-white/20 rounded text-[10px] font-bold">{tab.badge}</span>
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Tab Content */}
-      <motion.div
-        key={activeTab}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-      >
+      <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
         {activeTab === 'overview' && (
           <div className="space-y-6">
             <ScoreCard report={blueprint.scoringReport} />
@@ -125,6 +115,7 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
         {activeTab === 'intelligence' && <IntelligenceTab    intake={blueprint.businessIntake} />}
         {activeTab === 'atmosphere'   && <AtmosphereTab      intake={blueprint.businessIntake} />}
         {activeTab === 'creative'     && <CreativeTab        intake={blueprint.businessIntake} />}
+        {activeTab === 'persuasion'   && <PersuasionTab      intake={blueprint.businessIntake} />}
         {activeTab === 'seo'          && <SEOIntelligenceTab intake={blueprint.businessIntake} />}
         {activeTab === 'pages'        && <PagesPanel         pages={blueprint.pageBlueprints}  />}
         {activeTab === 'strategy' && (
