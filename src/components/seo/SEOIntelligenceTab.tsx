@@ -5,6 +5,7 @@ import { Search, Loader2, AlertCircle, RefreshCw, MapPin, Globe, Mic, Brain, Lin
 import type { BusinessIntake } from '@/types';
 import type { SEOIntelligenceReport, SEOIntelligenceStatus } from '@/types/seo';
 import SEOIntelligenceReport from './SEOIntelligenceReport';
+import { useExport } from '@/lib/export/ExportContext';
 
 const CATEGORIES = [
   { icon: Globe,    label: 'Google SEO',       desc: 'Page structure, keywords, metadata, schema' },
@@ -39,6 +40,7 @@ export default function SEOIntelligenceTab({ intake }: { intake: BusinessIntake 
   const [data, setData]       = useState<SEOIntelligenceReport | null>(null);
   const [error, setError]     = useState<string | null>(null);
   const [step, setStep]       = useState(0);
+  const { registerAIData }    = useExport();
 
   const generate = async () => {
     setStatus('loading'); setError(null); setStep(0);
@@ -51,8 +53,10 @@ export default function SEOIntelligenceTab({ intake }: { intake: BusinessIntake 
       });
       clearInterval(iv);
       if (!res.ok) throw new Error();
-      setData(await res.json());
+      const report: SEOIntelligenceReport = await res.json();
+      setData(report);
       setStatus('complete');
+      registerAIData('seoIntelligence', report);
     } catch {
       clearInterval(iv);
       setError('Generation failed. Please try again.');

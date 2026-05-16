@@ -8,6 +8,7 @@ import {
   ChevronRight, Zap,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
+import { ExportProvider } from '@/lib/export/ExportContext';
 import BlueprintOverview  from './BlueprintOverview';
 import PagesPanel         from './PagesPanel';
 import StrategyPanel      from './StrategyPanel';
@@ -24,8 +25,9 @@ import AcquisitionTab     from '@/components/acquisition/AcquisitionTab';
 import RetentionTab       from '@/components/retention/RetentionTab';
 import ReferralTab        from '@/components/referral/ReferralTab';
 import ScoringTab         from '@/components/scoring/ScoringTab';
+import ExportPanel        from '@/components/export/ExportPanel';
 
-// ── Navigation structure ─────────────────────────────────────────────────────────
+// ── Navigation structure ────────────────────────────────────────────────────────────────
 
 const NAV_GROUPS = [
   {
@@ -118,7 +120,7 @@ interface Props {
   onReset: () => void;
 }
 
-// ── Sidebar nav (shared between desktop + mobile drawer) ────────────────────────
+// ── Sidebar nav (shared between desktop + mobile drawer) ──────────────────────────────
 
 function SidebarNav({
   activeTab,
@@ -172,7 +174,7 @@ function SidebarNav({
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                       isActive
                         ? activeStyle
-                        : `text-gray-500 hover:text-gray-200 hover:bg-white/5 ${'color' in item && item.color ? '' : ''}`
+                        : `text-gray-500 hover:text-gray-200 hover:bg-white/5`
                     }`}
                   >
                     <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${
@@ -208,24 +210,14 @@ function SidebarNav({
   );
 }
 
-// ── Main Dashboard ────────────────────────────────────────────────────────────
+// ── Main Dashboard ──────────────────────────────────────────────────────────────
 
-export default function OutputDashboard({ blueprint, onReset }: Props) {
+function DashboardInner({ blueprint, onReset }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   const b = blueprint.businessIntake;
-
-  const handleDownload = () => {
-    const blob = new Blob([JSON.stringify(blueprint, null, 2)], { type: 'application/json' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
-    a.download = `${b.businessName.replace(/\s+/g, '-').toLowerCase()}-blueprint.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const navigate = (id: string) => setActiveTab(id as TabId);
 
   return (
@@ -250,9 +242,7 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 lg:hidden"
           >
-            {/* Backdrop */}
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
-            {/* Drawer panel */}
             <motion.div
               initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
               transition={{ type: 'spring', damping: 28, stiffness: 300 }}
@@ -274,13 +264,11 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
 
         {/* ── Top Header Bar ── */}
         <header className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 lg:px-8 py-3 bg-gray-950/90 backdrop-blur-xl border-b border-white/8">
-          {/* Mobile: hamburger */}
           <button onClick={() => setDrawerOpen(true)}
             className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/8 transition-all flex-shrink-0">
             <Menu className="w-5 h-5" />
           </button>
 
-          {/* Section breadcrumb */}
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="hidden lg:flex items-center gap-1.5 text-gray-600 text-xs">
               <span>{b.businessName}</span>
@@ -289,16 +277,14 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
             <p className="text-white text-sm font-semibold truncate">{SECTION_TITLE[activeTab]}</p>
           </div>
 
-          {/* Business info (desktop) */}
           <div className="hidden xl:flex items-center gap-2 text-xs text-gray-500 flex-shrink-0">
             <span>{b.industry}</span>
             <span className="text-gray-700">&middot;</span>
             <span>{b.city}, {b.state}</span>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button onClick={handleDownload}
+            <button onClick={() => setExportOpen(true)}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10 transition-all">
               <Download className="w-3.5 h-3.5" /> Export
             </button>
@@ -362,6 +348,19 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
           </AnimatePresence>
         </main>
       </div>
+
+      {/* ──── EXPORT PANEL ──── */}
+      {exportOpen && (
+        <ExportPanel blueprint={blueprint} onClose={() => setExportOpen(false)} />
+      )}
     </div>
+  );
+}
+
+export default function OutputDashboard({ blueprint, onReset }: Props) {
+  return (
+    <ExportProvider>
+      <DashboardInner blueprint={blueprint} onReset={onReset} />
+    </ExportProvider>
   );
 }

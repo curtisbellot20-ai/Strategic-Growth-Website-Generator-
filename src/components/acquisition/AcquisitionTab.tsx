@@ -9,6 +9,7 @@ import {
 import type { BusinessIntake } from '@/types';
 import type { AcquisitionState, ConversionAcquisitionReport } from '@/types/acquisition';
 import AcquisitionReport from './AcquisitionReport';
+import { useExport } from '@/lib/export/ExportContext';
 
 const IDLE_CARDS = [
   { icon: MousePointerClick, label: 'Hero & CTA System',       desc: 'High-converting hero copy, sticky CTAs, and micro-copy that drives clicks' },
@@ -40,13 +41,12 @@ const LOADING_STEPS = [
   'Compiling conversion principles and priority actions...',
 ];
 
-interface Props {
-  intake: BusinessIntake;
-}
+interface Props { intake: BusinessIntake; }
 
 export default function AcquisitionTab({ intake }: Props) {
   const [state, setState] = useState<AcquisitionState>({ status: 'idle', report: null, error: null });
   const [loadStep, setLoadStep] = useState(0);
+  const { registerAIData } = useExport();
 
   const generate = async () => {
     setState({ status: 'loading', report: null, error: null });
@@ -72,6 +72,7 @@ export default function AcquisitionTab({ intake }: Props) {
 
       const report: ConversionAcquisitionReport = await res.json();
       setState({ status: 'complete', report, error: null });
+      registerAIData('acquisition', report);
     } catch (err) {
       clearInterval(interval);
       setState({ status: 'error', report: null, error: err instanceof Error ? err.message : 'Unexpected error' });

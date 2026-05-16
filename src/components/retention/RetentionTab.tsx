@@ -9,6 +9,7 @@ import {
 import type { BusinessIntake } from '@/types';
 import type { RetentionState, RetentionReferralReport } from '@/types/retention';
 import RetentionReport from './RetentionReport';
+import { useExport } from '@/lib/export/ExportContext';
 
 const IDLE_CARDS = [
   { icon: Mail,          label: 'Follow-Up Sequence',       desc: 'Day 1, 3, 5, 7, 14 email series adapted to your industry — from trust-building to educational value' },
@@ -40,13 +41,12 @@ const LOADING_STEPS = [
   'Finalizing retention principles and 30-day plan...',
 ];
 
-interface Props {
-  intake: BusinessIntake;
-}
+interface Props { intake: BusinessIntake; }
 
 export default function RetentionTab({ intake }: Props) {
   const [state, setState] = useState<RetentionState>({ status: 'idle', report: null, error: null });
   const [loadStep, setLoadStep] = useState(0);
+  const { registerAIData } = useExport();
 
   const generate = async () => {
     setState({ status: 'loading', report: null, error: null });
@@ -72,6 +72,7 @@ export default function RetentionTab({ intake }: Props) {
 
       const report: RetentionReferralReport = await res.json();
       setState({ status: 'complete', report, error: null });
+      registerAIData('retention', report);
     } catch (err) {
       clearInterval(interval);
       setState({ status: 'error', report: null, error: err instanceof Error ? err.message : 'Unexpected error' });

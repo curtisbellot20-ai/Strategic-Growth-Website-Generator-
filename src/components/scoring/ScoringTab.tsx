@@ -10,6 +10,7 @@ import {
 import type { BusinessIntake } from '@/types';
 import type { ScoringState, WebsiteScoreReport } from '@/types/scoring';
 import ScoringReport from './ScoringReport';
+import { useExport } from '@/lib/export/ExportContext';
 
 const SCORE_CATEGORIES = [
   { icon: Tag,              category: 'Branding',             desc: 'Identity clarity, differentiation, visual voice' },
@@ -53,6 +54,7 @@ interface Props { intake: BusinessIntake; }
 export default function ScoringTab({ intake }: Props) {
   const [state, setState] = useState<ScoringState>({ status: 'idle', report: null, error: null });
   const [loadStep, setLoadStep] = useState(0);
+  const { registerAIData } = useExport();
 
   const generate = async () => {
     setState({ status: 'loading', report: null, error: null });
@@ -78,6 +80,7 @@ export default function ScoringTab({ intake }: Props) {
 
       const report: WebsiteScoreReport = await res.json();
       setState({ status: 'complete', report, error: null });
+      registerAIData('scoring', report);
     } catch (err) {
       clearInterval(interval);
       setState({ status: 'error', report: null, error: err instanceof Error ? err.message : 'Unexpected error' });
