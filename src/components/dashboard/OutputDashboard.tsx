@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Search, FileText, Palette,
   TrendingUp, BarChart3, CheckSquare, Download,
-  RotateCcw, Brain, Wind,
+  RotateCcw, Brain, Wind, Sparkles,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
 import ScoreCard        from './ScoreCard';
@@ -17,17 +17,19 @@ import AtmospherePanel  from './AtmospherePanel';
 import ImprovementPanel from './ImprovementPanel';
 import IntelligenceTab  from '@/components/intelligence/IntelligenceTab';
 import AtmosphereTab    from '@/components/atmosphere/AtmosphereTab';
+import CreativeTab      from '@/components/creative/CreativeTab';
 
 const TABS = [
-  { id: 'overview',     label: 'Overview',         icon: LayoutDashboard,  badge: null },
-  { id: 'intelligence', label: 'Intelligence',      icon: Brain,            badge: 'AI' },
-  { id: 'atmosphere',   label: 'Atmosphere',        icon: Wind,             badge: 'AI' },
-  { id: 'seo',          label: 'SEO / GEO / AEO',  icon: Search,           badge: null },
-  { id: 'pages',        label: 'Page Blueprints',   icon: FileText,         badge: null },
-  { id: 'strategy',     label: 'Strategy',          icon: TrendingUp,       badge: null },
-  { id: 'growth',       label: 'Growth Engines',    icon: BarChart3,        badge: null },
-  { id: 'design',       label: 'Design',            icon: Palette,          badge: null },
-  { id: 'actions',      label: 'Action Plan',       icon: CheckSquare,      badge: null },
+  { id: 'overview',     label: 'Overview',        icon: LayoutDashboard, badge: null },
+  { id: 'intelligence', label: 'Intelligence',     icon: Brain,           badge: 'AI' },
+  { id: 'atmosphere',   label: 'Atmosphere',       icon: Wind,            badge: 'AI' },
+  { id: 'creative',     label: 'Creative',         icon: Sparkles,        badge: 'AI' },
+  { id: 'seo',          label: 'SEO / GEO / AEO',  icon: Search,          badge: null },
+  { id: 'pages',        label: 'Page Blueprints',  icon: FileText,        badge: null },
+  { id: 'strategy',     label: 'Strategy',         icon: TrendingUp,      badge: null },
+  { id: 'growth',       label: 'Growth Engines',   icon: BarChart3,       badge: null },
+  { id: 'design',       label: 'Design',           icon: Palette,         badge: null },
+  { id: 'actions',      label: 'Action Plan',      icon: CheckSquare,     badge: null },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -35,6 +37,7 @@ type TabId = typeof TABS[number]['id'];
 const TAB_COLORS: Partial<Record<TabId, string>> = {
   intelligence: 'bg-purple-600',
   atmosphere:   'bg-teal-600',
+  creative:     'bg-orange-600',
 };
 
 interface Props {
@@ -93,7 +96,9 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
               <Icon className="w-3.5 h-3.5" />
               {tab.label}
               {tab.badge && (
-                <span className="ml-0.5 px-1.5 py-0.5 bg-white/20 rounded text-[10px] font-bold">{tab.badge}</span>
+                <span className="ml-0.5 px-1.5 py-0.5 bg-white/20 rounded text-[10px] font-bold">
+                  {tab.badge}
+                </span>
               )}
             </button>
           );
@@ -123,6 +128,10 @@ export default function OutputDashboard({ blueprint, onReset }: Props) {
 
         {activeTab === 'atmosphere' && (
           <AtmosphereTab intake={blueprint.businessIntake} />
+        )}
+
+        {activeTab === 'creative' && (
+          <CreativeTab intake={blueprint.businessIntake} />
         )}
 
         {activeTab === 'seo' && <SEOPanel seo={blueprint.seoStrategy} />}
