@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { buildScoringPrompt } from '@/lib/engines/scoringEngine';
-import { BusinessIntake } from '@/types';
+import type { BusinessIntake } from '@/types';
 
 const client = new Anthropic();
 
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(report);
   } catch (err) {
     console.error('Scoring engine error:', err);
-    const msg = err instanceof Error ? err.message : 'Failed to generate score report';
-    const status = err instanceof SyntaxError ? 500 : 500;
+    const msg    = err instanceof Error ? err.message : 'Failed to generate score report';
+    const status = err instanceof SyntaxError ? 422 : 500;
     return NextResponse.json({ error: msg }, { status });
   }
 }

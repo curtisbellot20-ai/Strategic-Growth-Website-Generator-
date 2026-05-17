@@ -4,13 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FolderOpen, Trash2, Clock, Building2 } from 'lucide-react';
 import { localProjectService } from '@/lib/projects/projectService';
-import { SavedProject } from '@/lib/projects/projectTypes';
+import type { SavedProject } from '@/lib/projects/projectTypes';
 import EmptyState from '@/components/ui/EmptyState';
-import { WebsiteBlueprint } from '@/types/blueprint';
 
 interface ProjectsPanelProps {
   onClose: () => void;
-  onLoad: (blueprint: WebsiteBlueprint, intakeData: Record<string, unknown>) => void;
+  onLoad: (project: SavedProject) => void;
 }
 
 export default function ProjectsPanel({ onClose, onLoad }: ProjectsPanelProps) {
@@ -33,7 +32,7 @@ export default function ProjectsPanel({ onClose, onLoad }: ProjectsPanelProps) {
   }
 
   function handleLoad(project: SavedProject) {
-    onLoad(project.blueprint, project.intakeData);
+    onLoad(project);
     onClose();
   }
 

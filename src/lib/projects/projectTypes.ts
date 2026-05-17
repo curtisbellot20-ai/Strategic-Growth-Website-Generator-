@@ -1,4 +1,4 @@
-import { WebsiteBlueprint } from '@/types/blueprint';
+import type { WebsiteBlueprint } from '@/types';
 
 export interface SavedProject {
   id: string;
