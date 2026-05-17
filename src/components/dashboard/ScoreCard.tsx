@@ -49,7 +49,6 @@ export default function ScoreCard({ report }: Props) {
   }
 
   const categories = (report.categoryScores || []).slice(0, 6);
-  const color = (report.overallScore || 0) >= 80 ? 'text-green-400' : (report.overallScore || 0) >= 60 ? 'text-amber-400' : 'text-red-400';
 
   return (
     <div className="card">
