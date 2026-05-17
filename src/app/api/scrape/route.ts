@@ -4,12 +4,9 @@ import { NextRequest, NextResponse } from 'next/server';
 const anthropic = new Anthropic();
 
 function stripHtml(html: string): string {
-  // Remove script and style tags with their contents
   let text = html.replace(/<script[\s\S]*?<\/script>/gi, '');
   text = text.replace(/<style[\s\S]*?<\/style>/gi, '');
-  // Remove all remaining HTML tags
   text = text.replace(/<[^>]+>/g, ' ');
-  // Decode common HTML entities
   text = text
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -18,9 +15,7 @@ function stripHtml(html: string): string {
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ')
     .replace(/&apos;/g, "'");
-  // Collapse whitespace
-  text = text.replace(/\s+/g, ' ').trim();
-  return text;
+  return text.replace(/\s+/g, ' ').trim();
 }
 
 const SYSTEM_PROMPT =
@@ -64,98 +59,95 @@ ${truncated}`;
 }
 
 export async function POST(req: NextRequest) {
-  let body: { url?: string; text?: string };
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
-  }
-
-  const { url, text } = body;
-
-  if (!url && !text) {
-    return NextResponse.json({ error: 'Provide either a url or text field.' }, { status: 400 });
-  }
-
-  let content = '';
-
-  if (url) {
-    // Validate protocol
-    let parsed: URL;
+    let body: { url?: string; text?: string };
     try {
-      parsed = new URL(url);
+      body = await req.json();
     } catch {
-      return NextResponse.json({ error: 'Only http:// and https:// URLs are supported.' }, { status: 400 });
-    }
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      return NextResponse.json({ error: 'Only http:// and https:// URLs are supported.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
     }
 
-    // Fetch the URL
-    let res: Response;
+    const { url, text } = body;
+
+    if (!url && !text) {
+      return NextResponse.json({ error: 'Provide either a url or text field.' }, { status: 400 });
+    }
+
+    let content = '';
+
+    if (url) {
+      let parsed: URL;
+      try {
+        parsed = new URL(url);
+      } catch {
+        return NextResponse.json({ error: 'Invalid URL format.' }, { status: 400 });
+      }
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return NextResponse.json({ error: 'Only http:// and https:// URLs are supported.' }, { status: 400 });
+      }
+
+      let fetchRes: Response;
+      try {
+        fetchRes = await fetch(url, {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          },
+          signal: AbortSignal.timeout(10000),
+        });
+      } catch {
+        return NextResponse.json(
+          { error: 'Could not reach that URL. Try the Paste Text option instead.' },
+          { status: 422 },
+        );
+      }
+
+      if (!fetchRes.ok) {
+        return NextResponse.json(
+          { error: `Could not access that URL (status ${fetchRes.status}). Try the Paste Text option instead.` },
+          { status: 422 },
+        );
+      }
+
+      const html = await fetchRes.text();
+      content = stripHtml(html);
+    } else if (text) {
+      content = text;
+    }
+
+    if (!content.trim()) {
+      return NextResponse.json({ error: 'No readable content found.' }, { status: 422 });
+    }
+
+    let message;
     try {
-      res = await fetch(url, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        },
-        signal: AbortSignal.timeout(10000),
+      message = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: buildUserPrompt(content) }],
       });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'AI service error';
+      return NextResponse.json({ error: `Claude error: ${msg}` }, { status: 500 });
+    }
+
+    const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const stripped = rawText
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim();
+
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(stripped);
     } catch {
-      return NextResponse.json(
-        { error: 'Could not reach that URL. Try the Paste Text option instead.' },
-        { status: 422 },
-      );
+      return NextResponse.json({ error: 'Failed to parse AI response.' }, { status: 500 });
     }
 
-    if (!res.ok) {
-      return NextResponse.json(
-        { error: `Could not access that URL (status ${res.status}). Try the Paste Text option instead.` },
-        { status: 422 },
-      );
-    }
-
-    const html = await res.text();
-    content = stripHtml(html);
-  } else if (text) {
-    content = text;
+    return NextResponse.json(parsedJson);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unexpected error';
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  if (!content.trim()) {
-    return NextResponse.json({ error: 'No readable content found.' }, { status: 422 });
-  }
-
-  // Call Claude
-  const message = await anthropic.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 2000,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: buildUserPrompt(content),
-      },
-    ],
-  });
-
-  const rawText =
-    message.content[0].type === 'text' ? message.content[0].text : '';
-
-  // Strip markdown fences if present
-  const stripped = rawText
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/i, '')
-    .trim();
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(stripped);
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to parse AI response as JSON.' },
-      { status: 500 },
-    );
-  }
-
-  return NextResponse.json(parsed);
 }
