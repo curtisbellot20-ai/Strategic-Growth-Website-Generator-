@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Globe, TrendingUp, Shield, Star, ArrowRight, FolderOpen } from 'lucide-react';
+import { Zap, Globe, TrendingUp, Shield, Star, ArrowRight, FolderOpen, Wand2, Loader2, ClipboardList } from 'lucide-react';
 import IntakeForm from '@/components/intake/IntakeForm';
 import GenerationProgress from '@/components/generation/GenerationProgress';
 import OutputDashboard from '@/components/dashboard/OutputDashboard';
@@ -35,6 +35,12 @@ export default function Home() {
   const [projectsOpen, setProjectsOpen] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
 
+  const [fillMode,      setFillMode]      = useState<'url' | 'paste'>('url');
+  const [urlInput,      setUrlInput]      = useState('');
+  const [pasteInput,    setPasteInput]    = useState('');
+  const [fillLoading,   setFillLoading]   = useState(false);
+  const [fillError,     setFillError]     = useState<string | null>(null);
+
   const scrollToForm = () => {
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -55,6 +61,34 @@ export default function Home() {
     setProjectsOpen(false);
     scrollToForm();
   }, []);
+
+  const handleAutoFill = useCallback(async () => {
+    setFillError(null);
+    setFillLoading(true);
+    try {
+      const body = fillMode === 'url'
+        ? { url: urlInput.trim() }
+        : { text: pasteInput.trim() };
+      const res  = await fetch('/api/scrape', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setFillError(data.error || 'Failed to analyze content.');
+        return;
+      }
+      setSampleKey((k) => k + 1);
+      setInitialData(data);
+      setState({ step: 'idle', progress: 0, message: '', blueprint: null, error: null });
+      scrollToForm();
+    } catch {
+      setFillError('Network error. Please try again.');
+    } finally {
+      setFillLoading(false);
+    }
+  }, [fillMode, urlInput, pasteInput, scrollToForm]);
 
   const simulateProgress = useCallback((onComplete: () => void) => {
     let i = 0;
@@ -210,6 +244,95 @@ export default function Home() {
                 <div className="flex-1 h-px bg-white/5" />
                 <p className="text-xs text-gray-600 whitespace-nowrap">or enter your own business below</p>
                 <div className="flex-1 h-px bg-white/5" />
+              </div>
+            </motion.div>
+
+            {/* Auto-fill */}
+            <motion.div
+              className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+            >
+              <div className="card p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Wand2 className="w-4 h-4 text-violet-400" />
+                  <p className="text-sm font-semibold text-white">Auto-Fill From Your Existing Content</p>
+                  <span className="badge-blue text-[10px]">NEW</span>
+                </div>
+
+                {/* Mode tabs */}
+                <div className="flex gap-2 mb-4">
+                  {(['url', 'paste'] as const).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => { setFillMode(mode); setFillError(null); }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                        fillMode === mode
+                          ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
+                          : 'bg-white/5 text-gray-400 border-white/10 hover:text-white hover:bg-white/8'
+                      }`}
+                    >
+                      {mode === 'url'
+                        ? <><Globe className="w-3.5 h-3.5" /> Website URL</>
+                        : <><ClipboardList className="w-3.5 h-3.5" /> Paste Text</>}
+                    </button>
+                  ))}
+                </div>
+
+                {fillMode === 'url' ? (
+                  <div className="flex gap-3">
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && !fillLoading && urlInput.trim() && handleAutoFill()}
+                      placeholder="https://yourbusiness.com"
+                      className="input flex-1 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAutoFill}
+                      disabled={fillLoading || !urlInput.trim()}
+                      className="btn-primary flex items-center gap-2 px-4 disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {fillLoading
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing…</>
+                        : <><Wand2 className="w-4 h-4" /> Auto-Fill</>}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <textarea
+                      value={pasteInput}
+                      onChange={(e) => setPasteInput(e.target.value)}
+                      rows={4}
+                      placeholder="Paste anything: your website text, Instagram bio, Google Business description, Facebook About section, Yelp listing, brochure copy — Claude will extract what it can."
+                      className="input resize-none w-full text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAutoFill}
+                      disabled={fillLoading || !pasteInput.trim()}
+                      className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {fillLoading
+                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing…</>
+                        : <><Wand2 className="w-4 h-4" /> Auto-Fill Form</>}
+                    </button>
+                  </div>
+                )}
+
+                {fillError && (
+                  <p className="text-red-400 text-xs mt-3 flex items-center gap-1.5">
+                    <span className="flex-shrink-0">⚠</span> {fillError}
+                  </p>
+                )}
+
+                <p className="text-[10px] text-gray-600 mt-3 leading-relaxed">
+                  Claude reads your content and pre-fills the form. Review everything before generating — you can edit any field.
+                </p>
               </div>
             </motion.div>
 
