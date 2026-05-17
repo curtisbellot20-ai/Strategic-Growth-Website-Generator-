@@ -1,146 +1,169 @@
 import { BusinessIntake } from '@/types';
 
 export function buildScoringPrompt(intake: BusinessIntake): string {
-  const hasTestimonials      = (intake.testimonials     || []).length > 0;
-  const hasPainPoints        = (intake.audiencePainPoints  || []).length > 0;
-  const hasDesires           = (intake.audienceDesires     || []).length > 0;
-  const hasFears             = (intake.audienceFears       || []).length > 0;
-  const hasObjections        = (intake.audienceObjections  || []).length > 0;
-  const hasSocialLinks       = !!(intake.instagram || intake.facebook || intake.tiktok || intake.youtube || intake.linkedin);
-  const hasUniqueAngle       = !!(intake.uniqueDifferentiator);
-  const hasTagline           = !!(intake.tagline);
-  const hasBrandColors       = !!(intake.brandPrimaryColor);
-  const hasAwards            = !!(intake.awardsAndCertifications);
-  const hasYears             = !!(intake.yearsInBusiness);
-  const hasPrice             = !!(intake.priceRange);
-  const hasBrandAtmosphere   = !!(intake.brandAtmosphere);
-  const hasLogo              = !!(intake.logoDescription);
+  const services = [
+    ...(intake.services || []),
+    intake.primaryService,
+    intake.secondaryServices,
+  ].filter(Boolean).join(', ') || 'Not specified';
 
-  return `You are a world-class Website Strategist and Digital Performance Auditor with expertise across branding, SEO, conversion optimization, UX, content strategy, and growth marketing.
+  const hasSocialLinks = !!(
+    intake.socialLinks?.instagram ||
+    intake.socialLinks?.facebook  ||
+    intake.socialLinks?.tiktok    ||
+    intake.socialLinks?.youtube   ||
+    intake.socialLinks?.linkedin
+  );
 
-You are scoring a website BLUEPRINT — meaning: score what this website WOULD achieve if fully implemented using the business information provided. Be honest and specific. Most businesses score 4–7 in most dimensions without exceptional data. Scores of 9–10 require strong evidence.
+  const socialSummary = Object.entries(intake.socialLinks || {})
+    .filter(([, v]) => v)
+    .map(([k, v]) => `${k}: ${v}`)
+    .join(', ') || 'None';
+
+  const testimonialCount = (intake.testimonials || []).length;
+  const reviewCount      = (intake.reviews || []).length;
+
+  const check = (val: unknown, label: string) =>
+    val ? `✅ ${typeof val === 'string' ? val.slice(0, 120) : label}` : `❌ Not provided`;
+
+  return `You are a world-class Website Strategist and Digital Performance Auditor — expert across branding, SEO, CRO, UX, content strategy, and growth marketing.
+
+You are scoring a website BLUEPRINT, not a live site. Score what this website WOULD achieve if built with the information below.
+
+SCORING RULES:
+- Be realistic, not generous. Most businesses score 4–7 without exceptional evidence.
+- Scores of 8+ require strong, specific supporting data.
+- Scores of 9–10 require exceptional, rare evidence.
+- A missing field that is CRITICAL for that dimension should always pull the score down.
+- Be consistent: the same level of data quality should produce similar scores across businesses.
 
 BUSINESS PROFILE:
-- Business: ${intake.businessName}
-- Industry: ${intake.industry}
-- Location: ${intake.city}, ${intake.state}
-- Services: ${intake.services}
-- Target Customer: ${intake.targetCustomer}
-- Tagline provided: ${hasTagline ? '✅ ' + intake.tagline : '❌ Not provided'}
-- Unique Differentiator: ${hasUniqueAngle ? '✅ ' + intake.uniqueDifferentiator : '❌ Not specified'}
-- Brand Colors: ${hasBrandColors ? '✅ Provided' : '❌ Not provided'}
-- Brand Atmosphere: ${hasBrandAtmosphere ? '✅ ' + intake.brandAtmosphere : '❌ Not provided'}
-- Logo Description: ${hasLogo ? '✅ Provided' : '❌ Not provided'}
-- Tone of Voice: ${intake.toneOfVoice || 'not specified'}
-- Luxury Level: ${intake.luxuryLevel || 5}/10
-- Price Range: ${hasPrice ? intake.priceRange : 'not specified'}
-- Years in Business: ${hasYears ? intake.yearsInBusiness : 'not specified'}
-- Awards/Certifications: ${hasAwards ? intake.awardsAndCertifications : 'none provided'}
-- Testimonials: ${hasTestimonials ? '✅ ' + (intake.testimonials || []).length + ' provided' : '❌ None provided'}
-- Customer Pain Points: ${hasPainPoints ? '✅ ' + (intake.audiencePainPoints || []).join(', ') : '❌ Not specified'}
-- Customer Desires: ${hasDesires ? '✅ ' + (intake.audienceDesires || []).join(', ') : '❌ Not specified'}
-- Customer Fears: ${hasFears ? '✅ ' + (intake.audienceFears || []).join(', ') : '❌ Not specified'}
-- Customer Objections: ${hasObjections ? '✅ ' + (intake.audienceObjections || []).join(', ') : '❌ Not specified'}
-- Social Media Present: ${hasSocialLinks ? '✅ Provided' : '❌ Not linked'}
-- Primary Goal: ${intake.primaryGoal || 'not specified'}
+Business: ${intake.businessName}
+Industry: ${intake.industry}
+Business Type: ${intake.businessType || 'N/A'}
+Location: ${intake.city}, ${intake.state}${intake.country ? ', ' + intake.country : ''}
+Service Radius: ${intake.serviceRadius || 'Local'}
+Years in Business: ${check(intake.yearsInBusiness, intake.yearsInBusiness || '')}
+Team Size: ${intake.teamSize || 'Not specified'}
 
-Score this website blueprint across exactly 17 dimensions. For each:
-- score: integer 1-10 (be realistic, not generous)
-- grade: use "A+" for 10, "A" for 9, "B" for 7-8, "C" for 5-6, "D" for 3-4, "F" for 1-2
-- summary: one punchy sentence stating the score verdict
-- why: 2-3 sentences explaining the specific reasons for this score based on data provided
-- missing: 3-5 specific things missing that are holding back a higher score
-- improvements: 3-5 specific, actionable steps to reach 10/10
-- quickWin: the single fastest action to improve this score this week
-- priority: "critical" (score 1-4), "high" (score 5-6), "medium" (score 7-8), "low" (score 9+)
+SERVICES:
+Primary: ${intake.primaryService || 'Not specified'}
+All Services: ${services}
+Price Point: ${check(intake.pricePoint, intake.pricePoint || '')}
+Results/Outcomes: ${check(intake.resultsOrOutcomes, intake.resultsOrOutcomes || '')}
 
-SCORING RUBRIC BY DIMENSION:
+TARGET AUDIENCE:
+Ideal Customer: ${check(intake.targetAudience, intake.targetAudience || '')}
+Age Range: ${intake.audienceAge || 'Not specified'}
+Income Level: ${intake.audienceIncome || 'Not specified'}
+Pain Points: ${check(intake.audiencePainPoints, intake.audiencePainPoints || '')}
+Desires: ${check(intake.audienceDesires, intake.audienceDesires || '')}
+Fears: ${check(intake.audienceFears, intake.audienceFears || '')}
+Objections: ${check(intake.audienceObjections, intake.audienceObjections || '')}
 
-1. BRANDING (1-10): Brand clarity, differentiation, voice, visual identity signals, memorability. Score down for: no tagline, no unique angle, vague services, undefined tone. Score up for: sharp positioning, clear voice, distinctive identity.
+BRAND:
+Tagline: ${check(intake.tagline, intake.tagline || '')}
+Unique Value Prop: ${check(intake.uniqueValueProp, intake.uniqueValueProp || '')}
+Brand Voice: ${check(intake.brandVoice, intake.brandVoice || '')}
+Brand Personality: ${(intake.brandPersonality || []).join(', ') || 'Not specified'}
+Desired Atmosphere: ${check(intake.desiredAtmosphere, intake.desiredAtmosphere || '')}
+Desired Style: ${check(intake.desiredBrandStyle, intake.desiredBrandStyle || '')}
+Emotional Tone: ${check(intake.desiredEmotionalTone, intake.desiredEmotionalTone || '')}
+Luxury Level: ${intake.luxuryLevel || 3}/5
+Brand Colors: ${check(intake.brandColors?.length, (intake.brandColors || []).join(', '))}
+Logo Description: ${check(intake.logoDescription, intake.logoDescription || '')}
 
-2. SEO (1-10): On-page optimization potential, keyword strategy, content architecture, meta strategy, schema readiness. Score down for: no keyword signals, generic services copy. Score up for: local + service specificity, long-tail content opportunity.
+SOCIAL PROOF:
+Testimonials: ${testimonialCount > 0 ? `✅ ${testimonialCount} provided` : '❌ None provided'}
+Reviews: ${reviewCount > 0 ? `✅ ${reviewCount} provided` : '❌ None provided'}
+Google Business Profile: ${check(intake.googleBusinessProfile, intake.googleBusinessProfile || '')}
 
-3. LOCAL SEO (1-10): Local search dominance potential. Score down for: no location signals, no GMB strategy signals, no local citations plan. Score up for: city/service combos, local schema, review strategy.
+SOCIAL PRESENCE:
+${hasSocialLinks ? '✅ ' + socialSummary : '❌ No social links provided'}
 
-4. GEO (1-10): Generative Engine Optimization — readiness to appear in AI search results (ChatGPT, Perplexity, Claude). Score based on: structured content depth, answer-format content, authority signals, topical coverage breadth.
+GOALS:
+Primary Goal: ${intake.primaryGoal || 'Not specified'}
+CTA Preference: ${intake.ctaPreference || 'Not specified'}
+Monthly Lead Goal: ${intake.monthlyLeadGoal || 'Not specified'}
+Revenue Goal: ${intake.revenueGoal || 'Not specified'}
+Main Competitors: ${(intake.competitors || []).join(', ') || 'None listed'}
 
-5. AEO (1-10): Answer Engine Optimization — FAQ structure, featured snippet readiness, voice search optimization, question-answer content format, schema markup.
+---
 
-6. SPEED (1-10): Performance optimization readiness. Score based on: content complexity, image-heavy expectations, animation use, tech stack. Most modern Next.js builds score 7-8 as baseline. Score down for: heavy media, complex animations without optimization plan.
+Score this blueprint across exactly 17 dimensions. For each dimension:
+- score: integer 1–10 (honest, specific to the data above)
+- grade: A+ (10), A (9), B+ (8), B (7), C+ (6), C (5), D (3–4), F (1–2)
+- summary: one punchy verdict sentence
+- why: 2–3 sentences citing specific data signals above
+- missing: exactly 3–5 specific missing items
+- improvements: exactly 3–5 specific actionable steps to reach 10/10
+- quickWin: fastest single improvement action this week
+- priority: critical (1–4) | high (5–6) | medium (7–8) | low (9+)
 
-7. MOBILE UX (1-10): Mobile experience quality. Score based on: responsive design intent, thumb-friendly CTA placement, sticky mobile elements, form simplicity, touch interactions.
+DIMENSIONS TO SCORE:
 
-8. ACCESSIBILITY (1-10): WCAG compliance readiness. Score based on: alt text strategy, color contrast, semantic markup, keyboard navigation, screen reader readiness. Score down for: no explicit accessibility planning.
+1. BRANDING: Clarity of identity, tagline sharpness, unique angle, voice, visual direction, memorability.
+2. SEO: On-page potential, keyword strategy, content architecture, meta readiness, topical authority potential.
+3. LOCAL SEO: Local search dominance, GMB readiness, city+service keyword potential, citation strategy, review velocity.
+4. GEO: Generative Engine Optimization — readiness to appear in ChatGPT/Perplexity/Claude answers. Structured content depth, topical breadth, authority signals.
+5. AEO: Answer Engine Optimization — FAQ potential, featured snippet readiness, voice search phrasing, schema markup viability.
+6. SPEED: Performance readiness. Modern Next.js = 7–8 baseline. Adjust for expected media weight, animation complexity, third-party scripts.
+7. MOBILE UX: Responsive design intent, thumb-friendly CTAs, sticky nav/CTA potential, form simplicity, touch-first thinking.
+8. ACCESSIBILITY: WCAG compliance readiness. Color contrast given brand colors, alt text strategy, semantic markup, keyboard navigation.
+9. CONVERSION: CRO strength — CTA clarity, friction reduction, objection handling data, funnel clarity, lead capture potential.
+10. TRUST: Credibility — testimonials, years in business, certifications, guarantees, transparency signals. No testimonials = max score 6.
+11. STORYTELLING: Narrative depth, before/after transformation clarity, emotional depth from pain/desire data, brand story richness.
+12. ATMOSPHERE: Emotional immersion potential. Atmosphere defined? Luxury level appropriate to price point? Sensory language signals?
+13. CREATIVE DESIGN: Visual distinctiveness. Brand colors + atmosphere + style all provided = higher. Generic/missing = lower.
+14. CUSTOMER ACQUISITION: Lead gen potential, lead magnet viability, multi-channel funnel, email capture strategy.
+15. RETENTION: Follow-up system viability, email sequence potential, loyalty mechanics, newsletter opportunity.
+16. REFERRAL READINESS: Word-of-mouth potential, referral mechanic viability, customer satisfaction indicators, social sharing design.
+17. ANALYTICS READINESS: Conversion tracking clarity, goal specificity, KPI definition, attribution model viability.
 
-9. CONVERSION (1-10): CRO strength. Score based on: CTA clarity, trust signals, friction reduction, objection handling, funnel clarity, lead capture strategy. Score up for: strong intake data on objections and desires.
-
-10. TRUST (1-10): Credibility signals. Score based on: testimonials provided, years in business, awards, certifications, guarantees planned, transparency signals. Score heavily down for no testimonials.
-
-11. STORYTELLING (1-10): Narrative power. Score based on: transformation clarity, emotional depth, before/after potential, brand story richness, customer journey clarity. Score up for: strong pain/desire data.
-
-12. ATMOSPHERE (1-10): Emotional immersion potential. Score based on: brand atmosphere defined, luxury level appropriate to industry, tone consistency, sensory language signals.
-
-13. CREATIVE DESIGN (1-10): Visual distinctiveness potential. Score based on: brand color provided, atmosphere defined, differentiation signals, industry creative expectations vs what was provided.
-
-14. CUSTOMER ACQUISITION (1-10): Lead generation potential. Score based on: lead magnet viability, CTA strength, email capture strategy signals, funnel clarity, entry point diversity.
-
-15. RETENTION (1-10): Customer lifecycle potential. Score based on: follow-up system viability, newsletter potential, loyalty signals, reactivation capability given data available.
-
-16. REFERRAL READINESS (1-10): Word-of-mouth potential. Score based on: testimonial culture signals, referral mechanic viability, customer satisfaction indicators, shareable experience design.
-
-17. ANALYTICS READINESS (1-10): Measurement infrastructure. Score based on: conversion tracking clarity, goal definition specificity, KPI identification, attribution model viability given the business type.
-
-Return ONLY a single valid JSON object:
+Return ONLY valid JSON:
 
 {
   "businessName": "${intake.businessName}",
   "industry": "${intake.industry}",
-  "overallScore": <average of all 17 scores, 1 decimal>,
+  "overallScore": <weighted average of all 17 dimension scores, 1 decimal place>,
   "overallGrade": "<grade for overall score>",
-  "scorePersonality": "one-sentence verdict on this website's current standing",
-  "scoreSummary": "2-3 sentence executive summary of what this score means for the business",
+  "scorePersonality": "<one-sentence verdict on this website's current growth readiness>",
+  "scoreSummary": "<2-3 sentence executive summary: what the score means and the top priority>",
   "generatedAt": "${new Date().toISOString()}",
-
   "dimensions": [
-    {
-      "category": "Branding",
-      "score": <1-10>,
-      "grade": "<grade>",
-      "summary": "one punchy sentence verdict",
-      "why": "2-3 sentences with specific reasons",
-      "missing": ["missing item 1", "missing item 2", "missing item 3"],
-      "improvements": ["improvement 1", "improvement 2", "improvement 3"],
-      "quickWin": "the fastest single action to improve this score",
-      "priority": "<critical|high|medium|low>"
-    },
-    { "category": "SEO", ... },
-    { "category": "Local SEO", ... },
-    { "category": "GEO", ... },
-    { "category": "AEO", ... },
-    { "category": "Speed", ... },
-    { "category": "Mobile UX", ... },
-    { "category": "Accessibility", ... },
-    { "category": "Conversion", ... },
-    { "category": "Trust", ... },
-    { "category": "Storytelling", ... },
-    { "category": "Atmosphere", ... },
-    { "category": "Creative Design", ... },
-    { "category": "Customer Acquisition", ... },
-    { "category": "Retention", ... },
-    { "category": "Referral Readiness", ... },
-    { "category": "Analytics Readiness", ... }
+    { "category": "Branding", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "SEO", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Local SEO", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "GEO", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "AEO", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Speed", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Mobile UX", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Accessibility", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Conversion", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Trust", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Storytelling", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Atmosphere", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Creative Design", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Customer Acquisition", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Retention", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Referral Readiness", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" },
+    { "category": "Analytics Readiness", "score": 0, "grade": "", "summary": "", "why": "", "missing": [], "improvements": [], "quickWin": "", "priority": "" }
   ],
-
   "groupSummaries": [
-    { "groupName": "Digital Presence", "averageScore": <avg of SEO + Local SEO + GEO + AEO>, "insight": "one insight" },
-    { "groupName": "Technical Performance", "averageScore": <avg of Speed + Mobile UX + Accessibility + Analytics Readiness>, "insight": "one insight" },
-    { "groupName": "Brand Experience", "averageScore": <avg of Branding + Atmosphere + Creative Design + Storytelling>, "insight": "one insight" },
-    { "groupName": "Revenue Engine", "averageScore": <avg of Trust + Conversion + Customer Acquisition + Retention + Referral Readiness>, "insight": "one insight" }
+    { "groupName": "Digital Presence", "averageScore": 0, "insight": "" },
+    { "groupName": "Technical Performance", "averageScore": 0, "insight": "" },
+    { "groupName": "Brand Experience", "averageScore": 0, "insight": "" },
+    { "groupName": "Revenue Engine", "averageScore": 0, "insight": "" }
   ],
+  "topStrengths": ["strength1", "strength2", "strength3"],
+  "criticalGaps": ["gap1", "gap2", "gap3"],
+  "quickWins": ["win1", "win2", "win3", "win4", "win5"],
+  "thirtyDayImprovementPlan": ["week1", "week2", "week3", "week4"]
+}
 
-  "topStrengths": ["strength 1", "strength 2", "strength 3"],
-  "criticalGaps": ["gap 1", "gap 2", "gap 3"],
-  "quickWins": ["quick win 1", "quick win 2", "quick win 3", "quick win 4", "quick win 5"],
-  "thirtyDayImprovementPlan": ["week 1 focus", "week 2 focus", "week 3 focus", "week 4 focus"]
-}`;
+Compute groupSummaries averages:
+- Digital Presence: avg(SEO, Local SEO, GEO, AEO)
+- Technical Performance: avg(Speed, Mobile UX, Accessibility, Analytics Readiness)
+- Brand Experience: avg(Branding, Atmosphere, Creative Design, Storytelling)
+- Revenue Engine: avg(Trust, Conversion, Customer Acquisition, Retention, Referral Readiness)`;
 }

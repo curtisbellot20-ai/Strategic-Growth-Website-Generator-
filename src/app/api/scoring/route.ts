@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: 'claude-opus-4-7',
       max_tokens: 8000,
+      system: 'You are an expert website strategist and performance auditor. Return ONLY valid JSON matching the exact schema provided. No markdown, no code fences, no explanation. Every score must be justified by the specific business data provided — never inflate scores.',
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -28,7 +29,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(report);
   } catch (err) {
     console.error('Scoring engine error:', err);
-    const message = err instanceof Error ? err.message : 'Failed to generate score report';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const msg = err instanceof Error ? err.message : 'Failed to generate score report';
+    const status = err instanceof SyntaxError ? 500 : 500;
+    return NextResponse.json({ error: msg }, { status });
   }
 }
