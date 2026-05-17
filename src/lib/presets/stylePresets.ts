@@ -4,11 +4,11 @@ export interface StylePreset {
   emoji: string;
   description: string;
   fields: {
-    atmosphere: string;
-    luxuryLevel: string;
-    brandStyle: string;
+    desiredAtmosphere: string;
+    luxuryLevel: number;
+    desiredBrandStyle: string;
     brandVoice: string;
-    emotionalTone: string;
+    desiredEmotionalTone: string;
     primaryColor: string;
     secondaryColor: string;
   };
@@ -21,11 +21,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '✨',
     description: 'Gold & midnight tones for premium brands',
     fields: {
-      atmosphere: 'luxury',
-      luxuryLevel: 'ultra_premium',
-      brandStyle: 'minimalist',
-      brandVoice: 'elegant',
-      emotionalTone: 'aspirational',
+      desiredAtmosphere: 'luxurious_refined',
+      luxuryLevel: 5,
+      desiredBrandStyle: 'luxury_boutique',
+      brandVoice: 'professional',
+      desiredEmotionalTone: 'inspiring_aspirational',
       primaryColor: '#C9A84C',
       secondaryColor: '#0D0D0D',
     },
@@ -36,11 +36,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '⚡',
     description: 'High-contrast energy for disruptors',
     fields: {
-      atmosphere: 'modern',
-      luxuryLevel: 'quality',
-      brandStyle: 'bold',
-      brandVoice: 'innovative',
-      emotionalTone: 'exciting',
+      desiredAtmosphere: 'bold_energetic',
+      luxuryLevel: 3,
+      desiredBrandStyle: 'tech_forward',
+      brandVoice: 'authoritative',
+      desiredEmotionalTone: 'exciting_dynamic',
       primaryColor: '#6C47FF',
       secondaryColor: '#FF4757',
     },
@@ -51,11 +51,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '🏛️',
     description: 'Trusted & structured for service businesses',
     fields: {
-      atmosphere: 'professional',
-      luxuryLevel: 'quality',
-      brandStyle: 'clean',
+      desiredAtmosphere: 'clean_minimal',
+      luxuryLevel: 3,
+      desiredBrandStyle: 'corporate_pro',
       brandVoice: 'authoritative',
-      emotionalTone: 'trustworthy',
+      desiredEmotionalTone: 'trustworthy_reliable',
       primaryColor: '#1B3A6B',
       secondaryColor: '#E8EDF5',
     },
@@ -66,11 +66,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '🌿',
     description: 'Organic & handcrafted for local brands',
     fields: {
-      atmosphere: 'artisan',
-      luxuryLevel: 'quality',
-      brandStyle: 'organic',
-      brandVoice: 'conversational',
-      emotionalTone: 'heartfelt',
+      desiredAtmosphere: 'warm_inviting',
+      luxuryLevel: 3,
+      desiredBrandStyle: 'rustic_earthy',
+      brandVoice: 'friendly',
+      desiredEmotionalTone: 'warm_empathetic',
       primaryColor: '#8B5E3C',
       secondaryColor: '#D4A853',
     },
@@ -81,11 +81,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '🚀',
     description: 'Cutting-edge for tech & innovation brands',
     fields: {
-      atmosphere: 'futuristic',
-      luxuryLevel: 'premium',
-      brandStyle: 'modern',
-      brandVoice: 'innovative',
-      emotionalTone: 'exciting',
+      desiredAtmosphere: 'modern_tech_forward',
+      luxuryLevel: 4,
+      desiredBrandStyle: 'tech_forward',
+      brandVoice: 'authoritative',
+      desiredEmotionalTone: 'exciting_dynamic',
       primaryColor: '#00D4FF',
       secondaryColor: '#0A0E1A',
     },
@@ -96,11 +96,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '🎨',
     description: 'Fun & energetic for consumer brands',
     fields: {
-      atmosphere: 'energetic',
-      luxuryLevel: 'accessible',
-      brandStyle: 'bold',
-      brandVoice: 'conversational',
-      emotionalTone: 'exciting',
+      desiredAtmosphere: 'playful_vibrant',
+      luxuryLevel: 2,
+      desiredBrandStyle: 'creative_artistic',
+      brandVoice: 'playful',
+      desiredEmotionalTone: 'exciting_dynamic',
       primaryColor: '#FF6B6B',
       secondaryColor: '#FFE66D',
     },
@@ -111,11 +111,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '🌸',
     description: 'Calming & nurturing for health & beauty',
     fields: {
-      atmosphere: 'serene',
-      luxuryLevel: 'quality',
-      brandStyle: 'minimalist',
-      brandVoice: 'nurturing',
-      emotionalTone: 'peaceful',
+      desiredAtmosphere: 'natural_organic',
+      luxuryLevel: 3,
+      desiredBrandStyle: 'wellness_holistic',
+      brandVoice: 'empathetic',
+      desiredEmotionalTone: 'calm_reassuring',
       primaryColor: '#B8A9C9',
       secondaryColor: '#F7F0E8',
     },
@@ -126,11 +126,11 @@ export const STYLE_PRESETS: StylePreset[] = [
     emoji: '🔥',
     description: 'Dominant & commanding for leaders',
     fields: {
-      atmosphere: 'professional',
-      luxuryLevel: 'ultra_premium',
-      brandStyle: 'classic',
+      desiredAtmosphere: 'clean_minimal',
+      luxuryLevel: 5,
+      desiredBrandStyle: 'classic_timeless',
       brandVoice: 'authoritative',
-      emotionalTone: 'empowering',
+      desiredEmotionalTone: 'confident_empowering',
       primaryColor: '#1A1A2E',
       secondaryColor: '#C41E3A',
     },

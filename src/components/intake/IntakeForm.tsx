@@ -49,21 +49,21 @@ const schema = z.object({
   email:           z.string().default(''),
 
   // Step 2 — Customer
-  targetAudience:    z.string().min(5, 'Describe your ideal customer'),
-  audienceAge:       z.string().default(''),
-  audienceIncome:    z.string().default(''),
+  targetAudience:      z.string().min(5, 'Describe your ideal customer'),
+  audienceAge:         z.string().default(''),
+  audienceIncome:      z.string().default(''),
   audiencePainPoints:  z.string().min(10, 'Describe their pain points'),
-  audienceDesires:   z.string().default(''),
-  audienceFears:     z.string().default(''),
-  audienceObjections: z.string().default(''),
+  audienceDesires:     z.string().default(''),
+  audienceFears:       z.string().default(''),
+  audienceObjections:  z.string().default(''),
 
   // Step 3 — Offer
-  primaryService:   z.string().min(3, 'Primary service is required'),
+  primaryService:    z.string().min(3, 'Primary service is required'),
   secondaryServices: z.string().default(''),
-  services:         z.array(z.string()).default([]),
-  locationsServed:  z.array(z.string()).default([]),
-  uniqueValueProp:  z.string().min(10, 'Describe your unique value proposition'),
-  pricePoint:       z.string().min(1, 'Please select a price point'),
+  services:          z.array(z.string()).default([]),
+  locationsServed:   z.array(z.string()).default([]),
+  uniqueValueProp:   z.string().min(10, 'Describe your unique value proposition'),
+  pricePoint:        z.string().min(1, 'Please select a price point'),
   resultsOrOutcomes: z.string().default(''),
 
   // Step 4 — Brand
@@ -133,9 +133,10 @@ const STEP_COMPONENTS = [
 interface Props {
   onSubmit: (data: BusinessIntake) => void;
   isGenerating: boolean;
+  initialData?: Record<string, unknown>;
 }
 
-export default function IntakeForm({ onSubmit, isGenerating }: Props) {
+export default function IntakeForm({ onSubmit, isGenerating, initialData }: Props) {
   const [step, setStep] = useState(0);
 
   const form = useForm<FormData>({
@@ -152,6 +153,7 @@ export default function IntakeForm({ onSubmit, isGenerating }: Props) {
       socialLinks:      { instagram:'', facebook:'', linkedin:'', tiktok:'', youtube:'', twitter:'' },
       testimonials:     [],
       reviews:          [],
+      ...(initialData ?? {}),
     },
     mode: 'onChange',
   });
@@ -176,8 +178,8 @@ export default function IntakeForm({ onSubmit, isGenerating }: Props) {
       {/* Step Indicator */}
       <div className="flex items-center mb-10">
         {STEPS.map((s, i) => {
-          const Icon     = s.Icon;
-          const isDone   = i < step;
+          const Icon      = s.Icon;
+          const isDone    = i < step;
           const isCurrent = i === step;
           return (
             <div key={s.id} className="flex items-center flex-1 last:flex-none">
