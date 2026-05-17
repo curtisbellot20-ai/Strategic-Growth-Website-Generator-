@@ -1,11 +1,12 @@
 'use client';
 import type { UseFormReturn } from 'react-hook-form';
+import { STYLE_PRESETS, type StylePreset } from '@/lib/presets/stylePresets';
 
 const ATMOSPHERES = [
   { value: 'luxurious_refined',   label: 'Luxurious & Refined',     emoji: '✨' },
   { value: 'clean_minimal',       label: 'Clean & Minimal',          emoji: '□' },
   { value: 'bold_energetic',      label: 'Bold & Energetic',         emoji: '⚡' },
-  { value: 'warm_inviting',       label: 'Warm & Inviting',          emoji: '🧡' },
+  { value: 'warm_inviting',       label: 'Warm & Inviting',          emoji: '🧁' },
   { value: 'clinical_precise',    label: 'Clinical & Precise',       emoji: '🔬' },
   { value: 'playful_vibrant',     label: 'Playful & Vibrant',        emoji: '🎈' },
   { value: 'natural_organic',     label: 'Natural & Organic',        emoji: '🌿' },
@@ -13,42 +14,42 @@ const ATMOSPHERES = [
 ];
 
 const BRAND_STYLES = [
-  { value: 'luxury_boutique',    label: 'Luxury Boutique' },
-  { value: 'modern_minimalist',  label: 'Modern Minimalist' },
-  { value: 'classic_timeless',   label: 'Classic & Timeless' },
-  { value: 'tech_forward',       label: 'Tech-Forward' },
-  { value: 'wellness_holistic',  label: 'Wellness & Holistic' },
-  { value: 'rustic_earthy',      label: 'Rustic & Earthy' },
-  { value: 'corporate_pro',      label: 'Corporate Professional' },
-  { value: 'creative_artistic',  label: 'Creative & Artistic' },
+  { value: 'luxury_boutique',   label: 'Luxury Boutique' },
+  { value: 'modern_minimalist', label: 'Modern Minimalist' },
+  { value: 'classic_timeless',  label: 'Classic & Timeless' },
+  { value: 'tech_forward',      label: 'Tech-Forward' },
+  { value: 'wellness_holistic', label: 'Wellness & Holistic' },
+  { value: 'rustic_earthy',     label: 'Rustic & Earthy' },
+  { value: 'corporate_pro',     label: 'Corporate Professional' },
+  { value: 'creative_artistic', label: 'Creative & Artistic' },
 ];
 
 const EMOTIONAL_TONES = [
-  { value: 'confident_empowering', label: 'Confident & Empowering', emoji: '💪' },
-  { value: 'warm_empathetic',      label: 'Warm & Empathetic',       emoji: '🤗' },
-  { value: 'inspiring_aspirational', label: 'Inspiring & Aspirational', emoji: '🌟' },
-  { value: 'trustworthy_reliable', label: 'Trustworthy & Reliable',  emoji: '🛡️' },
-  { value: 'exciting_dynamic',     label: 'Exciting & Dynamic',      emoji: '🚀' },
-  { value: 'calm_reassuring',      label: 'Calm & Reassuring',       emoji: '🌺' },
+  { value: 'confident_empowering',    label: 'Confident & Empowering',    emoji: '💪' },
+  { value: 'warm_empathetic',         label: 'Warm & Empathetic',          emoji: '🤗' },
+  { value: 'inspiring_aspirational',  label: 'Inspiring & Aspirational',   emoji: '🌟' },
+  { value: 'trustworthy_reliable',    label: 'Trustworthy & Reliable',     emoji: '🛡️' },
+  { value: 'exciting_dynamic',        label: 'Exciting & Dynamic',         emoji: '🚀' },
+  { value: 'calm_reassuring',         label: 'Calm & Reassuring',          emoji: '🌺' },
 ];
 
 const LUXURY_LEVELS = [
-  { value: 1, label: 'Budget',      emoji: '💵', desc: 'Accessible to all' },
-  { value: 2, label: 'Accessible',  emoji: '🏷️', desc: 'Good value focus' },
-  { value: 3, label: 'Mid-Market',  emoji: '⚖️',  desc: 'Quality balanced' },
-  { value: 4, label: 'Premium',     emoji: '💸', desc: 'High-end feel' },
-  { value: 5, label: 'Ultra-Luxury',emoji: '👑', desc: 'Elite & exclusive' },
+  { value: 1, label: 'Budget',       emoji: '💵', desc: 'Accessible to all' },
+  { value: 2, label: 'Accessible',   emoji: '🏷️', desc: 'Good value focus' },
+  { value: 3, label: 'Mid-Market',   emoji: '⚖️',  desc: 'Quality balanced' },
+  { value: 4, label: 'Premium',      emoji: '💸', desc: 'High-end feel' },
+  { value: 5, label: 'Ultra-Luxury', emoji: '👑', desc: 'Elite & exclusive' },
 ];
 
 const PERSONALITIES = [
-  { value: 'trustworthy',   label: 'Trustworthy',   emoji: '🤝' },
-  { value: 'innovative',    label: 'Innovative',    emoji: '💡' },
-  { value: 'luxurious',     label: 'Luxurious',     emoji: '✨' },
-  { value: 'approachable',  label: 'Approachable',  emoji: '😊' },
-  { value: 'energetic',     label: 'Energetic',     emoji: '⚡' },
-  { value: 'calming',       label: 'Calming',       emoji: '🌿' },
-  { value: 'bold',          label: 'Bold',          emoji: '🔥' },
-  { value: 'sophisticated', label: 'Sophisticated',  emoji: '🎩' },
+  { value: 'trustworthy',   label: 'Trustworthy',    emoji: '🤝' },
+  { value: 'innovative',    label: 'Innovative',     emoji: '💡' },
+  { value: 'luxurious',     label: 'Luxurious',      emoji: '✨' },
+  { value: 'approachable',  label: 'Approachable',   emoji: '😊' },
+  { value: 'energetic',     label: 'Energetic',      emoji: '⚡' },
+  { value: 'calming',       label: 'Calming',        emoji: '🌿' },
+  { value: 'bold',          label: 'Bold',           emoji: '🔥' },
+  { value: 'sophisticated', label: 'Sophisticated',   emoji: '🎩' },
 ];
 
 const BRAND_VOICES = [
@@ -71,9 +72,25 @@ const COLOR_LABELS = [
 export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
   const { register, watch, setValue, formState: { errors } } = form;
 
-  const selected: string[]  = watch('brandPersonality') || [];
-  const luxuryLevel: number = watch('luxuryLevel') || 3;
+  const selected: string[]    = watch('brandPersonality') || [];
+  const luxuryLevel: number   = watch('luxuryLevel') || 3;
   const brandColors: string[] = watch('brandColors') || ['#0ea5e9','#6366f1','#f59e0b','#9ca3af'];
+  const activeAtmosphere      = watch('desiredAtmosphere');
+  const activeBrandStyle      = watch('desiredBrandStyle');
+  const activeEmotionalTone   = watch('desiredEmotionalTone');
+  const activeBrandVoice      = watch('brandVoice');
+
+  const applyStylePreset = (preset: StylePreset) => {
+    setValue('desiredAtmosphere',    preset.fields.desiredAtmosphere);
+    setValue('desiredBrandStyle',    preset.fields.desiredBrandStyle);
+    setValue('desiredEmotionalTone', preset.fields.desiredEmotionalTone);
+    setValue('brandVoice',           preset.fields.brandVoice);
+    setValue('luxuryLevel',          preset.fields.luxuryLevel);
+    const updated = [...brandColors];
+    updated[0] = preset.fields.primaryColor;
+    updated[1] = preset.fields.secondaryColor;
+    setValue('brandColors', updated);
+  };
 
   const togglePersonality = (val: string) => {
     if (selected.includes(val)) {
@@ -97,6 +114,31 @@ export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
       </p>
 
       <div className="space-y-8">
+
+        {/* Style Presets — one-click brand packages */}
+        <div>
+          <p className="text-xs text-gray-500 font-semibold uppercase tracking-widest mb-1">Quick Style Presets</p>
+          <p className="text-xs text-gray-600 mb-3">Click any preset to instantly apply a complete brand direction across all fields below.</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {STYLE_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => applyStylePreset(preset)}
+                className="relative group card p-3 text-left hover:border-sky-500/40 transition-all overflow-hidden"
+              >
+                <div
+                  className="absolute top-0 right-0 w-8 h-8 rounded-bl-xl opacity-60"
+                  style={{ background: `linear-gradient(135deg, ${preset.fields.primaryColor}, ${preset.fields.secondaryColor})` }}
+                />
+                <div className="text-lg mb-1">{preset.emoji}</div>
+                <p className="text-xs font-semibold text-white group-hover:text-sky-300 transition-colors">{preset.label}</p>
+                <p className="text-[10px] text-gray-600 mt-0.5 leading-tight">{preset.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Desired Atmosphere */}
         <div>
           <p className="text-xs text-gray-500 font-semibold uppercase tracking-widest mb-3">Desired Atmosphere</p>
@@ -105,10 +147,10 @@ export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
               <label key={a.value} className="cursor-pointer">
                 <input {...register('desiredAtmosphere')} type="radio" value={a.value} className="sr-only" />
                 <div className={`card p-3 text-center transition-all hover:border-sky-500/40 ${
-                  watch('desiredAtmosphere') === a.value ? 'border-sky-500 bg-sky-500/10' : ''
+                  activeAtmosphere === a.value ? 'border-sky-500 bg-sky-500/10' : ''
                 }`}>
                   <div className="text-xl mb-1">{a.emoji}</div>
-                  <p className={`text-xs font-medium leading-tight ${ watch('desiredAtmosphere') === a.value ? 'text-sky-300' : 'text-gray-400' }`}>
+                  <p className={`text-xs font-medium leading-tight ${ activeAtmosphere === a.value ? 'text-sky-300' : 'text-gray-400' }`}>
                     {a.label}
                   </p>
                 </div>
@@ -125,7 +167,7 @@ export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
               <label key={s.value} className="cursor-pointer">
                 <input {...register('desiredBrandStyle')} type="radio" value={s.value} className="sr-only" />
                 <div className={`card p-3 text-center text-sm transition-all hover:border-sky-500/40 ${
-                  watch('desiredBrandStyle') === s.value ? 'border-sky-500 bg-sky-500/10 text-sky-300' : 'text-gray-400'
+                  activeBrandStyle === s.value ? 'border-sky-500 bg-sky-500/10 text-sky-300' : 'text-gray-400'
                 }`}>
                   {s.label}
                 </div>
@@ -142,10 +184,10 @@ export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
               <label key={t.value} className="cursor-pointer">
                 <input {...register('desiredEmotionalTone')} type="radio" value={t.value} className="sr-only" />
                 <div className={`card p-3 flex items-center gap-3 transition-all hover:border-sky-500/40 ${
-                  watch('desiredEmotionalTone') === t.value ? 'border-sky-500 bg-sky-500/10' : ''
+                  activeEmotionalTone === t.value ? 'border-sky-500 bg-sky-500/10' : ''
                 }`}>
                   <span className="text-xl flex-shrink-0">{t.emoji}</span>
-                  <p className={`text-xs font-medium ${ watch('desiredEmotionalTone') === t.value ? 'text-sky-300' : 'text-gray-400' }`}>
+                  <p className={`text-xs font-medium ${ activeEmotionalTone === t.value ? 'text-sky-300' : 'text-gray-400' }`}>
                     {t.label}
                   </p>
                 </div>
@@ -242,7 +284,7 @@ export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
               <label key={v.value} className="cursor-pointer">
                 <input {...register('brandVoice')} type="radio" value={v.value} className="sr-only" />
                 <div className={`card p-3 text-center text-sm transition-all hover:border-sky-500/40 ${
-                  watch('brandVoice') === v.value ? 'border-sky-500 bg-sky-500/10 text-sky-300' : 'text-gray-400'
+                  activeBrandVoice === v.value ? 'border-sky-500 bg-sky-500/10 text-sky-300' : 'text-gray-400'
                 }`}>
                   {v.label}
                 </div>
@@ -259,7 +301,7 @@ export default function StepBrand({ form }: { form: UseFormReturn<any> }) {
               <div className="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-sky-500/30 transition-all mb-3">
                 <div className="text-3xl mb-2">📸</div>
                 <p className="text-sm text-gray-400 font-medium">Logo Placeholder</p>
-                <p className="text-xs text-gray-600 mt-1">Describe your logo or note you’ll provide one</p>
+                <p className="text-xs text-gray-600 mt-1">Describe your logo or note you'll provide one</p>
               </div>
               <textarea
                 {...register('logoDescription')}

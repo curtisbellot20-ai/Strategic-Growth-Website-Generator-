@@ -5,10 +5,12 @@ import {
   LayoutDashboard, Search, FileText, Palette, TrendingUp,
   BarChart3, CheckSquare, Download, RotateCcw, Brain, Wind,
   Sparkles, Heart, Target, Gem, Gauge, Share2, Menu, X,
-  ChevronRight, Zap,
+  ChevronRight, Zap, Save,
 } from 'lucide-react';
 import type { WebsiteBlueprint } from '@/types';
 import { ExportProvider } from '@/lib/export/ExportContext';
+import { localProjectService } from '@/lib/projects/projectService';
+import { useToast } from '@/lib/toast/toastContext';
 import BlueprintOverview  from './BlueprintOverview';
 import PagesPanel         from './PagesPanel';
 import StrategyPanel      from './StrategyPanel';
@@ -27,7 +29,7 @@ import ReferralTab        from '@/components/referral/ReferralTab';
 import ScoringTab         from '@/components/scoring/ScoringTab';
 import ExportPanel        from '@/components/export/ExportPanel';
 
-// ── Navigation structure ────────────────────────────────────────────────────────────────
+// ── Navigation structure ─────────────────────────────────────────────────────────────────────────────────
 
 const NAV_GROUPS = [
   {
@@ -113,20 +115,17 @@ const SECTION_TITLE: Record<TabId, string> = {
   actions:      'Improvement Checklist',
 };
 
-// ── Props ──────────────────────────────────────────────────────────────────
+// ── Props ─────────────────────────────────────────────────────────────────────────────────
 
 interface Props {
   blueprint: WebsiteBlueprint;
   onReset: () => void;
 }
 
-// ── Sidebar nav (shared between desktop + mobile drawer) ──────────────────────────────
+// ── Sidebar nav (shared between desktop + mobile drawer) ────────────────────────────────────────────
 
 function SidebarNav({
-  activeTab,
-  onSelect,
-  business,
-  onClose,
+  activeTab, onSelect, business, onClose,
 }: {
   activeTab: TabId;
   onSelect: (id: TabId) => void;
@@ -174,7 +173,7 @@ function SidebarNav({
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                       isActive
                         ? activeStyle
-                        : `text-gray-500 hover:text-gray-200 hover:bg-white/5`
+                        : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
                     }`}
                   >
                     <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${
@@ -210,15 +209,35 @@ function SidebarNav({
   );
 }
 
-// ── Main Dashboard ──────────────────────────────────────────────────────────────
+// ── Main Dashboard ──────────────────────────────────────────────────────────────────────
 
 function DashboardInner({ blueprint, onReset }: Props) {
-  const [activeTab, setActiveTab] = useState<TabId>('overview');
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [exportOpen, setExportOpen] = useState(false);
+  const [activeTab,   setActiveTab]   = useState<TabId>('overview');
+  const [drawerOpen,  setDrawerOpen]  = useState(false);
+  const [exportOpen,  setExportOpen]  = useState(false);
+  const [saving,      setSaving]      = useState(false);
+  const { toast } = useToast();
 
   const b = blueprint.businessIntake;
   const navigate = (id: string) => setActiveTab(id as TabId);
+
+  const handleSaveProject = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await localProjectService.create({
+        name: b.businessName,
+        industry: b.industry,
+        intakeData: b,
+        blueprint,
+      });
+      toast.success('Project saved!');
+    } catch {
+      toast.error('Failed to save project.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="flex -mx-4 sm:-mx-6 lg:-mx-8 min-h-screen relative">
@@ -226,11 +245,7 @@ function DashboardInner({ blueprint, onReset }: Props) {
       {/* ──── DESKTOP SIDEBAR ──── */}
       <aside className="hidden lg:flex flex-col w-52 xl:w-60 flex-shrink-0 bg-black/30 border-r border-white/8">
         <div className="sticky top-0 h-screen">
-          <SidebarNav
-            activeTab={activeTab}
-            onSelect={setActiveTab}
-            business={b.businessName}
-          />
+          <SidebarNav activeTab={activeTab} onSelect={setActiveTab} business={b.businessName} />
         </div>
       </aside>
 
@@ -284,6 +299,14 @@ function DashboardInner({ blueprint, onReset }: Props) {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={handleSaveProject}
+              disabled={saving}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-lg border border-emerald-500/20 transition-all disabled:opacity-50"
+            >
+              <Save className="w-3.5 h-3.5" />
+              {saving ? 'Saving…' : 'Save'}
+            </button>
             <button onClick={() => setExportOpen(true)}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10 transition-all">
               <Download className="w-3.5 h-3.5" /> Export
